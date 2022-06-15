@@ -1,0 +1,216 @@
+openapi: 3.0.1
+info:
+  title: Marriage Api
+servers:
+  - url: http://localhost:8080/api
+security:
+  - ApiKeyAuth: []
+paths:
+  /presence:
+    get:
+      tags:
+        - presence-controller
+      summary: Find all presence
+      operationId: getPresence
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Presence'
+    post:
+      tags:
+        - presence-controller
+      summary: Add a new presence
+      description: Add new presence with a guest id
+      operationId: postPresence
+      parameters:
+        - name: guestId
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Presence'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /presence/{id}:
+    get:
+      tags:
+        - presence-controller
+      summary: Find presence by id
+      operationId: getPresenceById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Presence'
+    delete:
+      tags:
+        - presence-controller
+      summary: Delete one presence
+      operationId: deletePresence
+      parameters:
+        - name: presenceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /presence/{guestId}:
+    get:
+      tags:
+        - presence-controller
+      summary: Find presence by guest id
+      operationId: getPresenceByGuestId
+      parameters:
+        - name: guestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Presence'
+  /guest:
+    get:
+      tags:
+        - guest-controller
+      summary: Find all guest
+      operationId: getInvite
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Guest'
+        '403':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      tags:
+        - guest-controller
+      summary: Add new guest
+      operationId: postInvite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Guest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /guest/{id}:
+    get:
+      tags:
+        - guest-controller
+      summary: Find one guest
+      operationId: getGuestById
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Guest'
+    delete:
+      tags:
+        - guest-controller
+      summary: Delete one guest
+      operationId: deleteGuest
+      parameters:
+        - name: guestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: api_key
+  schemas:
+    Presence:
+      type: object
+      properties:
+        id:
+          type: string
+        guestId:
+          type: string
+        ceremony:
+          type: boolean
+        wineReception:
+          type: boolean
+        meal:
+          type: boolean
+        plate:
+          type: string
+          enum:
+            - BEEF
+            - FISH
+            - VEGE
+    Guest:
+      type: object
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        presence:
+          $ref: '#/components/schemas/Presence'
+  responses:
+    UnauthorizedError:
+      description: API key is missing or invalid
+      headers:
+        WWW_Authenticate:
+          type: string
